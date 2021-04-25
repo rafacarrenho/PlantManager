@@ -13,24 +13,14 @@ import fonts from "../styles/fonts";
 import { api } from "../services/api";
 import PlantCardPrimary from "../components/PlantCardPrimary";
 import Load from "../components/Load";
+import { useNavigation } from "@react-navigation/core";
+import { PlantProps } from "../libs/storage";
 
 interface EnvironmentProps {
   key: string;
   title: string;
 }
 
-interface PlantProps {
-  id: string;
-  name: string;
-  about: string;
-  water_tips: string;
-  photo: string;
-  environments: [string];
-  frequency: {
-    times: number;
-    repeat_every: string;
-  };
-}
 const PlantSelect = () => {
   const [environments, setEnvironments] = useState<EnvironmentProps[]>([]);
   const [plants, setPlants] = useState<PlantProps[]>([]);
@@ -40,7 +30,8 @@ const PlantSelect = () => {
 
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(true);
-  const [loadedAll, setLoadedAll] = useState(false);
+
+  const navigation = useNavigation();
 
   const fetchPlants = async () => {
     const { data } = await api.get("plants", {
@@ -102,6 +93,10 @@ const PlantSelect = () => {
     setFilteredPlants(filtered);
   };
 
+  const handlePlantSelect = (plant: PlantProps) => {
+    navigation.navigate("PlantSave", { plant });
+  };
+
   if (loading) return <Load />;
 
   return (
@@ -114,6 +109,7 @@ const PlantSelect = () => {
       <View>
         <FlatList
           data={environments}
+          keyExtractor={(item) => String(item.key)}
           renderItem={({ item }) => (
             <EnviromentButton
               title={item.title}
@@ -129,7 +125,13 @@ const PlantSelect = () => {
       <View style={styles.plants}>
         <FlatList
           data={filteredPlants}
-          renderItem={({ item }) => <PlantCardPrimary data={item} />}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <PlantCardPrimary
+              data={item}
+              onPress={() => handlePlantSelect(item)}
+            />
+          )}
           showsVerticalScrollIndicator={false}
           numColumns={2}
           onEndReachedThreshold={0.1}
