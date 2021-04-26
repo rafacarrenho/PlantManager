@@ -3,13 +3,17 @@ import { View, StyleSheet, Image, Text, FlatList, Alert } from "react-native";
 import { formatDistance } from "date-fns/esm";
 
 import Header from "../components/Header";
-import { loadPlant, PlantProps } from "../libs/storage";
+import {
+  loadPlant,
+  PlantProps,
+  removePlant,
+  StoragePlantProps,
+} from "../libs/storage";
 
 import waterDrop from "../assets/waterdrop.png";
 import colors from "../styles/colors";
 import { ptBR } from "date-fns/locale";
 import fonts from "../styles/fonts";
-// import { PlantCardSecondary } from '../components/PlantCardSecondary';
 import Load from "../components/Load";
 import PlantCardSecondary from "../components/PlantCardSecondary";
 
@@ -21,26 +25,51 @@ const MyPlants = () => {
   useEffect(() => {
     const loadStorageDate = async () => {
       const plantsStoraged = await loadPlant();
-      const nexTime = formatDistance(
-        new Date(plantsStoraged[0].dateTimeNotification).getTime(),
-        new Date().getTime(),
-        { locale: ptBR }
-      );
+      if (plantsStoraged[0]) {
+        const nexTime = formatDistance(
+          new Date(plantsStoraged[0]?.dateTimeNotification).getTime(),
+          new Date().getTime(),
+          { locale: ptBR }
+        );
 
-      setNextWatered(
-        `Não esqueça de regar a ${plantsStoraged[0].name} à ${nexTime}.`
-      );
+        setNextWatered(
+          `Não esqueça de regar a ${plantsStoraged[0].name} à ${nexTime}.`
+        );
 
-      setMyPlants(plantsStoraged);
+        setMyPlants(plantsStoraged);
+      }
       setLoading(false);
     };
 
     loadStorageDate();
   }, []);
 
-  // if (loading) {
-  //   return <Load />;
-  // }
+  const handleRemove = (plant: PlantProps) => {
+    Alert.alert(`Remover`, `Deseja remover a ${plant.name}?`, [
+      {
+        text: "Não 🤨",
+        style: "cancel",
+      },
+      {
+        text: "Sim 😁",
+        onPress: async () => {
+          try {
+            await removePlant(plant.id);
+
+            setMyPlants((oldData) =>
+              oldData?.filter((data) => data.id !== plant.id)
+            );
+          } catch (error) {
+            Alert.alert("Não foi possivel remover!");
+          }
+        },
+      },
+    ]);
+  };
+
+  if (loading) {
+    return <Load />;
+  }
 
   return (
     <View style={styles.container}>
@@ -57,9 +86,14 @@ const MyPlants = () => {
         <FlatList
           data={myPlants}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => <PlantCardSecondary data={item} />}
+          renderItem={({ item }) => (
+            <PlantCardSecondary
+              data={item}
+              handleRemove={() => handleRemove(item)}
+            />
+          )}
+          numColumns={1}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flex: 1 }}
         />
       </View>
     </View>

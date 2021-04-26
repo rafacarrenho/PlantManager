@@ -153,8 +153,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    // justifyContent: "center",
-    // alignItems: "center",
   },
   header: {
     paddingHorizontal: 30,
@@ -175,8 +173,8 @@ const styles = StyleSheet.create({
   enviromentList: {
     height: 40,
     justifyContent: "center",
-    paddingBottom: 5,
-    marginLeft: 32,
+    paddingBottom: 30,
+    paddingHorizontal: 32,
     marginVertical: 32,
   },
   plants: {
