@@ -3,12 +3,7 @@ import { View, StyleSheet, Image, Text, FlatList, Alert } from "react-native";
 import { formatDistance } from "date-fns/esm";
 
 import Header from "../components/Header";
-import {
-  loadPlant,
-  PlantProps,
-  removePlant,
-  StoragePlantProps,
-} from "../libs/storage";
+import { loadPlant, PlantProps, removePlant } from "../libs/storage";
 
 import waterDrop from "../assets/waterdrop.png";
 import colors from "../styles/colors";
